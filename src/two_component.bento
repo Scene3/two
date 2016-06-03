@@ -158,9 +158,9 @@ site two [=
 
 
         /-------------------------------/
-        /---------- the scene ----------/
+        /---------- the stage ----------/
 
-        keep: scene this_scene = new_scene
+        keep: stage this_stage = new_stage
         
 
         /-------------------------------/
@@ -190,14 +190,8 @@ site two [=
     
          main_script [=
 
-            debug_log("main_script called with scene " + this_scene.name + " with " + this_scene.objs.count + " objects");
+            debug_log("main_script called with stage " + this_stage.name);
             
-            debug_log(" obj[0] " + this_scene.objs[0].type); 
-            
-            for three_object o in this_scene.objs [=
-                debug_log("   ..." + o.type);
-            =]
-                    
             [| <script> |]
             
             /-- create the canvas for rendering, and in the process see 
@@ -227,17 +221,17 @@ site two [=
                 |]
 
                 /-- construct the scene --/
-                js_comment_log("construct the scene");
-                this_scene;
+                js_comment_log("construct the stage");
+                this_stage;
 
                 js_comment_log("assign global variables");
                 assign_global_vars;
                 
 
-                /-- let the scene add to the script --/
-                if (this_scene.scripts) [=
+                /-- let the stage add to the script --/
+                if (this_stage.scripts) [=
                     js_comment_log("add scene scripts");
-                    this_scene.scripts;
+                    this_stage.scripts;
                 =]
 
                 /-- add script defined by subclass, if any --/
@@ -248,8 +242,6 @@ site two [=
 
                 /-- add mouse listeners etc. --/
                 add_controls;
-
-                [| updateCamera(); |]
 
                 /-- drop into the rendering loop, from whence we will not return --/
                 info_log("begin rendering loop");
@@ -282,41 +274,13 @@ site two [=
             var canvasHeight = [= canvas_container; =].clientHeight;
             var [= canvas_renderer; =];
             var [= canvas_scene; =];
-            var [= canvas_camera; =];
         |]  
         
-        camera this_cam = this_scene.cam
         assign_global_vars [|
             [= canvas_renderer; =] = this_renderer;
             [= canvas_scene; =] = [= this_scene.name; =];
-            [= canvas_camera; =] = [= this_cam.name; =];
-
         |]
 
-        update_global_vars(params{}) [=
-            cam_pos = canvas_camera + ".position"
-                   
-            if (params{"camera_x"}) [=
-                cam_pos;
-                [| .setX( |]
-                params{"camera_x"};
-                [| ); |]
-            =]
-            if (params{"camera_x"}) [=
-                cam_pos;
-                [| .setX( |]
-                params{"camera_x"};
-                [| ); |]
-            =]
-            if (params{"camera_x"}) [=
-                cam_pos;
-                [| .setX( |]
-                params{"camera_x"};
-                [| ); |]
-            =]
-       =]       
-        
-        
         /** Create the canvas, depending on what kind of graphics support is available on the client. **/
         create_canvas [|
              var [= canvas_name; =] = document.createElement("canvas");
@@ -367,7 +331,7 @@ site two [=
             
             body [|
                 requestAnimationFrame(animate);
-                [= canvas_scene; =].next_frame();
+                [= canvas_stage; =].next_frame();
                 render();
                 post_render();
             |]
@@ -377,9 +341,7 @@ site two [=
             body [=
                 canvas_renderer; 
                 [| .render( |]
-                canvas_scene;
-                [| , |]
-                canvas_camera;
+                canvas_stage;
                 [| ); |]
             =]
         =]
@@ -395,14 +357,8 @@ site two [=
             function resizeCanvas() {
                 recalcCanvasSize();
                 [= canvas_renderer; =].setSize(canvasWidth, canvasHeight);
-                updateCamera();
             }
             
-            function updateCamera() {
-                [= canvas_camera; =].aspect = canvasWidth / canvasHeight;
-                [= canvas_camera; =].updateProjectionMatrix();
-            }
-        
             function recalcCanvasSize() { 
                 [= recalc_canvas_size_logic; =]
             }
@@ -421,10 +377,10 @@ site two [=
         /---- component construction ----/
 
         /---- full instantiation ----/
-        with (new_scene) [=
-            info_log("instantiating three_component");    
+        with (new_stage) [=
+            info_log("instantiating two_component");    
             sub;
-            debug_log("instantiating three_component scripts");
+            debug_log("instantiating two_component scripts");
             scripts;
             
         /---- respond to ajax call ----/
