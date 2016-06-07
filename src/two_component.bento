@@ -29,7 +29,13 @@ site two [=
    
     component two_component(stage new_stage),(params{}) [=
     
-
+        stage_name = "stage"
+        stage_bg_color = "#FFFFFF"
+        
+        container_name = stage_name + "_container"
+        
+        keep: view_width(w) = w
+        keep: view_height(h) = h
 
         /-----------------------/
         /------ scripting ------/
@@ -56,9 +62,17 @@ site two [=
 
             debug_log("main_script called with stage " + this_stage.name);
             
-            [| <script> |]
+            [|
+                <script>
+                
+                var width = [= view_width; =];
+                var height = [= view_height; =]; 
+                
+                var [= stage_name; =] = new PIXI.Container([= stage_bg_color; =]);
+                var renderer = PIXI.autoDetectRenderer(width, height);
 
-            [| </script> |]    
+                </script>
+            |]    
         =]
 
 
