@@ -28,14 +28,14 @@ site two [=
      **/ 
    
     component two_component(stage new_stage),(params{}) [=
-    
+
         stage_name = "stage"
         stage_bg_color = "#FFFFFF"
+
+        id = stage_name + "_component"
         
-        container_name = stage_name + "_container"
-        
-        keep: view_width(w) = w
-        keep: view_height(h) = h
+        component_id = id
+        component_name = stage_name + "Component"
 
         /-----------------------/
         /------ scripting ------/
@@ -57,22 +57,63 @@ site two [=
             main_script;
         =]
 
-    
+
         main_script [=
 
-            debug_log("main_script called with stage " + this_stage.name);
+            debug_log("main_script called with stage " + new_stage.name);
+            
+            [| <script> |]
+            
+            if (run_scripts_on_load) [=
+                [| function [= stage_name; =]_onload() { |]
+            =]
+            
+            [|   
+                var viewComponent = document.getElementById([= component_id; =]); 
+                var viewWidth;
+                var viewHeight;
+            |]
+            
+            calc_view_size_logic; 
             
             [|
-                <script>
-                
-                var width = [= view_width; =];
-                var height = [= view_height; =]; 
-                
                 var [= stage_name; =] = new PIXI.Container([= stage_bg_color; =]);
-                var renderer = PIXI.autoDetectRenderer(width, height);
+                var renderer = PIXI.autoDetectRenderer(viewWidth, viewHeight);
+            |]
 
-                </script>
-            |]    
+            if (run_scripts_on_load) [=
+                [| } |]
+                set_handler("onload");
+            =]
+            
+            [| </script> |]    
+        =]
+
+
+        calc_view_size_logic [=
+        
+            if (size_to_window) [|
+                var x = 0;
+                var y = 0;
+                var width = 0;
+                var height = 0;
+                for (var element = viewComponent; element != null; element = element.offsetParent) {
+                   x += element.offsetLeft;
+                   y += element.offsetTop;
+                   if (element.offsetParent == null) {
+                       width = element.offsetWidth;
+                       height = element.offsetHeight;
+                   }
+                }
+                viewWidth = width - x;
+                viewHeight = height - y;
+            |] else [|
+                viewWidth = viewComponent.clientWidth;
+                viewHeight = viewComponent.clientHeight;
+            |]
+        =]
+        
+        
         =]
 
 
