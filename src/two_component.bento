@@ -64,6 +64,7 @@ site two [=
             
             [| <script> |]
             
+            
             if (run_scripts_on_load) [=
                 [| function [= stage_name; =]_onload() { |]
             =]
@@ -79,6 +80,16 @@ site two [=
             [|
                 var [= stage_name; =] = new PIXI.Container([= stage_bg_color; =]);
                 var renderer = PIXI.autoDetectRenderer(viewWidth, viewHeight);
+                viewComponent.appendChild(renderer.view);
+
+                animate();
+                
+                function animate() {
+                    requestAnimationFrame(animate);
+                    [= stage.next_frame; =]
+                    renderer.render([= stage_name; =]);
+                }
+
             |]
 
             if (run_scripts_on_load) [=
@@ -112,9 +123,8 @@ site two [=
                 viewHeight = viewComponent.clientHeight;
             |]
         =]
+
         
-        
-        =]
 
 
         /--------------------------------/
