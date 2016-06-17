@@ -29,13 +29,13 @@ site two [=
    
     component two_component(stage new_stage),(params{}) [=
 
-        stage_name = "stage"
-        stage_bg_color = "#FFFFFF"
+        keep: stage_name = new_stage.name
+        keep: stage_bg_color = new_stage.bg_color
+        keep: stage_next_frame = new_stage.next_frame
 
-        id = stage_name + "_component"
+        keep: id = stage_name + "_component"
         
         component_id = id
-        component_name = stage_name + "Component"
 
         /-----------------------/
         /------ scripting ------/
@@ -60,7 +60,7 @@ site two [=
 
         main_script [=
 
-            debug_log("main_script called with stage " + new_stage.name);
+            debug_log("main_script called with stage " + stage_name);
             
             [| <script> |]
             
@@ -81,17 +81,10 @@ site two [=
                 var [= stage_name; =] = new PIXI.Container([= stage_bg_color; =]);
                 var renderer = PIXI.autoDetectRenderer(viewWidth, viewHeight);
                 viewComponent.appendChild(renderer.view);
-
-                animate();
-                
-                function animate() {
-                    requestAnimationFrame(animate);
-                    [= stage.next_frame; =]
-                    renderer.render([= stage_name; =]);
-                }
-
             |]
-
+            
+            animate;
+            
             if (run_scripts_on_load) [=
                 [| } |]
                 set_handler("onload");
@@ -101,8 +94,18 @@ site two [=
         =]
 
 
+        animate [|
+            animate();
+                
+            function animate() {
+                requestAnimationFrame(animate);
+                [= stage_next_frame; =]
+                renderer.render([= stage_name; =]);
+            }
+        |]
+
+
         calc_view_size_logic [=
-        
             if (size_to_window) [|
                 var x = 0;
                 var y = 0;
